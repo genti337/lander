@@ -14,7 +14,7 @@ DynBody::DynBody(void) :
    eciPos(),
    eciVel() {
    // Default Inertial to Body
-//   M_IDENT(T_eci2body);
+   M_IDENT(T_eci2body);
 }
 
 // Default Destructor

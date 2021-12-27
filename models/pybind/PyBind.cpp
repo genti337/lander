@@ -5,6 +5,7 @@
 #include "../math/Vec3.h"
 #include "../dyn_body/DynBody.h"
 #include "../eom/EoM.h"
+#include "../vehicle/Lander.h"
 #include "../math/vector_macros.h"
 #include "../math/matrix_macros.h"
 
@@ -37,6 +38,7 @@ PYBIND11_MODULE(liblander, m) {
         .def("getECIPos", &DynBody::getECIPos)  // Expose method to get the inertial position
         .def("setECIVel", &DynBody::setECIVel)  // Expose method to set the inertial velocity
         .def("getECIVel", &DynBody::getECIVel)  // Expose method to get the inertial velocity
+        .def("getLVLHVel", &DynBody::getLVLHVel)  // Expose method to get the LVLH velocity
         .def("getAlt", &DynBody::getAlt);       // Expose method to get the geocentric altitude
 
     // Equation of Motion Class
@@ -44,4 +46,10 @@ PYBIND11_MODULE(liblander, m) {
         .def(py::init<>())                   // Constructor
         .def("Initialize", &EoM::Initialize) // Expose method to initialize the equations of motion
         .def("Update", &EoM::Update);    // Expose method to update the equations of motion
+
+    // Equation of Motion Class
+    py::class_<Lander>(m, "Lander")
+        .def(py::init<>())                   // Constructor
+        .def("Initialize", &Lander::Initialize) // Expose method to initialize the equations of motion
+        .def("Update", &Lander::Update);    // Expose method to update the equations of motion
 }

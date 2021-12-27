@@ -8,7 +8,9 @@ SRC      :=                       \
    ../models/math/Vec3.cpp        \
    ../models/dyn_body/DynBody.cpp \
    ../models/eom/EoM.cpp          \
+   ../models/fam/FaM.cpp          \
    ../models/pybind/PyBind.cpp    \
+   ../models/vehicle/Lander.cpp    \
 #   $(wildcard src/module2/*.cpp) \
 #   $(wildcard src/*.cpp)         \
 

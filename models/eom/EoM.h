@@ -39,9 +39,10 @@ private:
 
    double T_eci2pfix[3][3];  // (--) Inertial to Planet-Fixed Rotation Matrix
    double T_pfix2eci[3][3];  // (--) Planet-Fixed to Inertial Rotation Matrix
+   double T_eci2lvlh[3][3];  // (--) Inertial to Planet-Fixed Rotation Matrix
 
-   double grav_accel;         // (m/s^2)  Gravitational Acceleration Magnitude
-   double grav_accel_eci[3];  // (m/s^2)  Gravitational Acceleration wrt Inertial
+   double accel_body[3];     // (m/s^2)  Acceleration in the Body Frame
+   double accel_eci[3];      // (m/s^2)  Acceleration in the Inertial Frame
 
    std::deque<double> eciVelPrev[3];
    std::deque<double> eciAccPrev[3];

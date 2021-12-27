@@ -39,6 +39,10 @@ void EoM::Initialize() {
 // Update Routine
 void EoM::Update(DynBody &lander) {
    static bool first_pass = true;
+   double vec1[3] = {0.0, 0.0, 0.0};
+   double vec2[3] = {0.0, 0.0, 0.0};
+   double vec3[3] = {0.0, 0.0, 0.0};
+   double omega_vec[3] = {0.0, 0.0, planet_omega};
 
    // Update the Planet Rotation Angle
    this->planet_rot += this->planet_omega * this->dt;
@@ -58,41 +62,58 @@ void EoM::Update(DynBody &lander) {
 
    // Inertial to LVLH Rotation
    double hvec[3] = {0.0, 0.0, 0.0};
-   V_SCALE(lander.T_eci2lvlh[2], lander.eciPos, -1.0);
+   V_SCALE(T_eci2lvlh[2], lander.eciPos, -1.0);
    V_CROSS(hvec, lander.eciPos, lander.eciVel);
-   V_SCALE(lander.T_eci2lvlh[1], hvec, -1.0);
-   V_CROSS(lander.T_eci2lvlh[0], lander.T_eci2lvlh[1], lander.T_eci2lvlh[2]);
-   V_NORM(lander.T_eci2lvlh[0], lander.T_eci2lvlh[0]);
-   V_NORM(lander.T_eci2lvlh[1], lander.T_eci2lvlh[1]);
-   V_NORM(lander.T_eci2lvlh[2], lander.T_eci2lvlh[2]);
+   V_SCALE(T_eci2lvlh[1], hvec, -1.0);
+   V_CROSS(T_eci2lvlh[0], T_eci2lvlh[1], T_eci2lvlh[2]);
+   V_NORM(T_eci2lvlh[0], T_eci2lvlh[0]);
+   V_NORM(T_eci2lvlh[1], T_eci2lvlh[1]);
+   V_NORM(T_eci2lvlh[2], T_eci2lvlh[2]);
 
-   // Gravitaional Acceleration
-   this->grav_accel = (this->planet_gm * this->planet_mass) / powf(V_MAG(lander.eciPos), 2);
-
-   // Gravitational Acceleration wrt Inertial Frame
-   double eciPosNorm[3] = {0.0, 0.0, 0.0};
-   V_NORM(eciPosNorm, lander.eciPos);
-   V_SCALE(this->grav_accel_eci, eciPosNorm, -this->grav_accel);
+   // Body Frame Acceleration
+   for (int i=0; i<3; i++) {
+      lander.bodyAcc[i] = lander.force_body[i] / lander.mass;
+   }
 
    // Inertial Acceleration
-   V_INIT(lander.eciAcc);
-   V_ADD(lander.eciAcc, lander.eciAcc, this->grav_accel_eci);
-
-   // Initialize Previous Values of Inertial Acceleration
-   if (first_pass) {
-      for (int i=0; i<3; i++) {
-         for (int j=0; j<4; j++) {
-            eciVelPrev[i].push_back(lander.eciVel[i]);
-            eciAccPrev[i].push_back(lander.eciAcc[i]);
-         }
-      }
-   }
+   MtxV(lander.eciAcc, lander.T_eci2body, lander.bodyAcc);
+   M_TRANS(lander.T_body2eci, lander.T_eci2body);
 
    // Update the Vehicle Position and Velocity
    for (int i=0; i<3; i++) {
       Integrate(lander.eciVel[i], lander.eciVel[i], lander.eciAcc[i], eciAccPrev[i]);
       Integrate(lander.eciPos[i], lander.eciPos[i], lander.eciVel[i], eciVelPrev[i]);
+      Integrate(lander.moment_body[i], lander.moment_body[i], lander.torque_body[i], eciVelPrev[i]);
    }
+
+   // Body Angular Acceleration
+   double inertia_inverse[3][3];
+   M_TRANS(inertia_inverse, lander.inertia);
+   MxV(lander.omega_body, inertia_inverse, lander.moment_body);
+   MxV(lander.omega_eci, lander.T_body2eci, lander.omega_body);
+
+   // 
+   double T_eci2body_dot[3][3];
+   double omega_star[3][3];
+   V_SKEW(omega_star, lander.omega_eci);
+   MxM(T_eci2body_dot, omega_star, lander.T_eci2body);
+
+   // Integrate
+   for (int i=0; i<3; i++) {
+      for (int j=0; j<3; j++) {
+         Integrate(lander.T_eci2body[i][j], lander.T_eci2body[i][j], T_eci2body_dot[i][j], eciVelPrev[i]);
+      }
+   }
+
+   // Planet-Fixed State
+   MxV(lander.pfixPos, T_eci2pfix, lander.eciPos);
+   V_CROSS(vec1, omega_vec, lander.eciPos);
+   V_SUB(vec2, lander.eciVel, vec1);
+   MxV(lander.pfixVel, T_eci2pfix, vec2);
+
+   // LVLH State
+   MxV(lander.lvlhVel, T_eci2lvlh, lander.eciVel);
+   MtxM(lander.T_lvlh2body, T_eci2lvlh, lander.T_eci2body);
 
    // Geocentric Altitude
    lander.geocentric_alt = V_MAG(lander.eciPos) - planet_radius;
@@ -102,7 +123,6 @@ void EoM::Update(DynBody &lander) {
 
    return;
 }
-
 
 // Integration Routine
 void EoM::Integrate(double& output, double input, double input_deriv, std::deque<double>& input_deriv_vec) {
