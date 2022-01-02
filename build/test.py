@@ -8,7 +8,10 @@ body = DynBody()
 lander = Lander()
 
 # Set the Initial Orbital State
-set_trans_state(body, frame='orbital', alt=15000.0, long_asc=0.0, inclination=math.radians(0.0), true_anom=math.radians(0.0))
+set_trans_state(body, frame='orbital', alt=15000.0, long_asc=0.0, inclination=math.radians(90.0), true_anom=math.radians(0.0))
+
+# Set teh Intial Attitude
+set_rot_state(body, frame='lvlh', euler=[math.radians(0.0), math.radians(30.0), math.radians(0.0)])
 
 # Lander Mass Properties
 body.setMass(100.0)
@@ -26,7 +29,8 @@ velLVLH_z = []
 alt = []
 time = 0.0
 times = []
-while i < 100000:
+iter = 100000
+while i < iter:
 	lander.Update(body)
 	times.append(time)
 	pos_x.append(body.getECIPos(0))

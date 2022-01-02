@@ -5,10 +5,15 @@
 #include <sstream>
 #include <iomanip>
 #include <cmath>
+//#include <Eigen/Core>
+
+// Trick Includes
+//#include "include/trick/trick_math_proto.h"
 
 // Model Includes
-#include "../math/vector_macros.h"
-#include "../math/matrix_macros.h"
+#include "vector_macros.h"
+#include "matrix_macros.h"
+#include "EoM.h"
 
 // Default Constructor
 EoM::EoM(void) {
@@ -114,6 +119,9 @@ void EoM::Update(DynBody &lander) {
    // LVLH State
    MxV(lander.lvlhVel, T_eci2lvlh, lander.eciVel);
    MtxM(lander.T_lvlh2body, T_eci2lvlh, lander.T_eci2body);
+   Mat2Euler(lander.T_lvlh2body, lander.eul_lvlh2body); 
+   //printf("%.2f %.2f %.2f\n", lander.eul_lvlh2body[0] * 180.0 / M_PI, lander.eul_lvlh2body[1] * 180.0 / M_PI, lander.eul_lvlh2body[2] * 180.0 / M_PI);
+   //printf("%.2f %.2f %.2f\n", lander.lvlhVel[0], lander.lvlhVel[1], lander.lvlhVel[2]);
 
    // Geocentric Altitude
    lander.geocentric_alt = V_MAG(lander.eciPos) - planet_radius;
@@ -134,3 +142,66 @@ void EoM::Integrate(double& output, double input, double input_deriv, std::deque
    //output = input + (1/24.0) * this->dt * (55.0 * input_deriv_vec[0] - 59.0 * input_deriv_vec[1] + 37.0 * input_deriv_vec[2] - 9.0 * input_deriv_vec[3]);
    output = input + input_deriv * this->dt;
 }
+
+// Convert the Rotation Matrix to Euler Angles
+//void EoM::Mat2Euler(double mat[3][3], double euler[3]){
+//   if ((mat[2][0] > -1.0) && (mat[2][0] < 1.0)) {
+//      euler[1] = -asin(mat[2][0]);
+//      euler[2] = atan2(mat[1][1] / cos(euler[1]), mat[1][2] / cos(euler[1]));
+//      euler[0] = atan2(mat[1][0] / cos(euler[1]), mat[0][0] / cos(euler[1]));
+//   } else {
+//      euler[0] = 0.0;
+//      if (mat[2][0] == -1.0) {
+//         euler[1] = M_PI / 2.0;
+//         euler[2] = euler[0] + atan2(mat[0][1], mat[0][2]);
+//      } else {
+//         euler[1] = -M_PI / 2.0;
+//         euler[2] = -euler[0] + atan2(-mat[0][1], -mat[0][2]);
+//      }
+//   }
+//
+//   return;
+//}
+
+// Convert the Euler Angles to Rotation Matrix
+//void EoM::Euler2Mat(double mat[3][3], double euler[3]) {
+//   double mat1[3][3], mat2[3][3], mat3[3][3];
+//   double temp_mat[3][3];
+//
+//   // Rotation about the X-Axis
+//   mat1[0][0] = 1.0;
+//   mat1[0][1] = 0.0;
+//   mat1[0][2] = 0.0;
+//   mat1[1][0] = 0.0;
+//   mat1[1][1] = cos(euler[0]);
+//   mat1[1][2] = -sin(euler[0]);
+//   mat1[2][0] = 0.0;
+//   mat1[2][1] = sin(euler[0]);
+//   mat1[2][2] = cos(euler[0]);
+//
+//   // Rotation about the Y-Axis
+//   mat2[0][0] = cos(euler[1]);
+//   mat2[0][1] = 0.0;
+//   mat2[0][2] = sin(euler[1]);
+//   mat2[1][0] = 0.0;
+//   mat2[1][1] = 1.0;
+//   mat2[1][2] = 0.0;
+//   mat2[2][0] = -sin(euler[1]);
+//   mat2[2][1] = 0.0;
+//   mat2[2][2] = cos(euler[1]);
+//
+//   // Rotation about the Z-Axis
+//   mat3[0][0] = cos(euler[2]);
+//   mat3[0][1] = -sin(euler[2]);
+//   mat3[0][2] = 0.0;
+//   mat3[1][0] = sin(euler[2]);
+//   mat3[1][1] = cos(euler[2]);
+//   mat3[1][2] = 0.0;
+//   mat3[2][0] = 0.0;
+//   mat3[2][1] = 0.0;
+//   mat3[2][2] = 1.0;
+//  
+//   // Multiply Rotations to get Matrix
+//   MxM(temp_mat, mat1, mat2);
+//   MxM(mat, temp_mat, mat3);
+//}

@@ -2,7 +2,6 @@
 #include <pybind11/numpy.h>
 
 // Model Includes
-#include "../math/Vec3.h"
 #include "../dyn_body/DynBody.h"
 #include "../eom/EoM.h"
 #include "../vehicle/Lander.h"
@@ -24,11 +23,6 @@ PYBIND11_MODULE(liblander, m) {
     // Matrix and Vector Math Operations
     m.def("v_mag", &v_mag, "A function to return the magnitude of a vector.");
 
-    // Generic Vector 3 Class
-    py::class_<Vec3>(m, "Vec3")
-        .def(py::init<>())                   // Constructor
-        .def("Magnitude", &Vec3::Magnitude); // Expose member method
-
     // Dynamic Body Class
     py::class_<DynBody>(m, "DynBody")
         .def(py::init<>())                   	// Constructor
@@ -38,6 +32,7 @@ PYBIND11_MODULE(liblander, m) {
         .def("getECIPos", &DynBody::getECIPos)  // Expose method to get the inertial position
         .def("setECIVel", &DynBody::setECIVel)  // Expose method to set the inertial velocity
         .def("getECIVel", &DynBody::getECIVel)  // Expose method to get the inertial velocity
+        .def("setLVLHAtt", &DynBody::setLVLHAtt)  // Expose method to set the LVLH Attitude
         .def("getLVLHVel", &DynBody::getLVLHVel)  // Expose method to get the LVLH velocity
         .def("getAlt", &DynBody::getAlt);       // Expose method to get the geocentric altitude
 

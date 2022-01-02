@@ -6,10 +6,11 @@
 #include <string>
 
 // Model Includes
-#include "../math/vector_macros.h"
-#include "../math/matrix_macros.h"
+#include "vector_macros.h"
+#include "matrix_macros.h"
+#include "MathUtils.h"
 
-class DynBody {
+class DynBody : MathUtils {
    friend class EoM;
    friend class FaM;
 public:
@@ -34,6 +35,9 @@ public:
    // Set the Inertial Velocity
    void setECIVel(double eciVelX, double eciVelY, double eciVelZ);
 
+   // Set the LVLH Atttiude
+   void setLVLHAtt(double yaw, double pitch, double roll);
+
    // Get the Inertial Velocity
    double getECIVel(int element);
 
@@ -57,6 +61,7 @@ protected:
    double T_eci2body[3][3];	// (--)    Inertial to Body Rotation
    double T_body2eci[3][3];	// (--)    Body to Inertial Rotation
    double T_lvlh2body[3][3];    // (--)    LVLH to Body Rotation
+   double eul_lvlh2body[3];     // (r)     LVLH to Body Euler Angles (Yaw-Pitch-Roll)
    double geocentric_alt;       // (m)     Geocentric Altitude
    double force_body[3];        // (N)     Force in the Body Frame
    double torque_body[3];       // (N*m)   Torque in the Body Frame
@@ -93,6 +98,30 @@ inline void DynBody::setECIVel(double eciVelX, double eciVelY, double eciVelZ) {
    eciVel[0] = eciVelX;
    eciVel[1] = eciVelY;
    eciVel[2] = eciVelZ;
+}
+
+// Set the LVLH Attitude
+inline void DynBody::setLVLHAtt(double yaw, double pitch, double roll) {
+   double euler[3] = {yaw, pitch, roll};
+   double hvec[3] = {0.0, 0.0, 0.0};
+   double T_eci2lvlh[3][3];
+
+   Euler2Mat(T_lvlh2body, euler);
+
+   // Inertial to LVLH Rotation
+   V_SCALE(T_eci2lvlh[2], eciPos, -1.0);
+   V_CROSS(hvec, eciPos, eciVel);
+   V_SCALE(T_eci2lvlh[1], hvec, -1.0);
+   V_CROSS(T_eci2lvlh[0], T_eci2lvlh[1], T_eci2lvlh[2]);
+   V_NORM(T_eci2lvlh[0], T_eci2lvlh[0]);
+   V_NORM(T_eci2lvlh[1], T_eci2lvlh[1]);
+   V_NORM(T_eci2lvlh[2], T_eci2lvlh[2]);
+
+   // Inertial to Body
+   MxM(T_eci2body, T_eci2lvlh, T_lvlh2body);
+
+   M_PRINT(T_lvlh2body);
+   M_PRINT(T_eci2body);
 }
 
 // Get the Inertial Velocity

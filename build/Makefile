@@ -3,14 +3,14 @@ CXXFLAGS := -std=c++17 -shared -undefined dynamic_lookup `python3.9 -m pybind11 
 LDFLAGS  := `python3.9-config --ldflags`
 OBJ_DIR  := objects
 TARGET   := liblander.so
-INCLUDE  := -I../models/math/ -I../models/dyn_body
+INCLUDE  := -I../models/math/ -I../models/dyn_body -I../trick
 SRC      :=                       \
-   ../models/math/Vec3.cpp        \
    ../models/dyn_body/DynBody.cpp \
    ../models/eom/EoM.cpp          \
    ../models/fam/FaM.cpp          \
    ../models/pybind/PyBind.cpp    \
    ../models/vehicle/Lander.cpp    \
+   ../models/math/MathUtils.cpp    \
 #   $(wildcard src/module2/*.cpp) \
 #   $(wildcard src/*.cpp)         \
 

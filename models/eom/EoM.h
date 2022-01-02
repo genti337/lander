@@ -7,10 +7,10 @@
 #include <deque>
 
 // Model Includes
-#include "../math/Vec3.h"
+#include "MathUtils.h"
 #include "../dyn_body/DynBody.h"
 
-class EoM {
+class EoM : MathUtils {
    friend class DynBody;
 
 public:
@@ -28,6 +28,12 @@ public:
 
    // Integration Routine
    void Integrate(double& output, double input, double input_deriv, std::deque<double>& input_deriv_vec);
+
+   // Convert the Rotation Matrix to Euler Angles (Yaw-Pitch-Roll)
+   //void Mat2Euler(double mat[3][3], double euler[3]);
+
+   // Convert the Euler Angles to Rotation Matrix (Yaw-Pitch-Roll)
+   //void Euler2Mat(double mat[3][3], double euler[3]);
 
 private:
    double planet_gm;	// (m^3*kg) Planet Graviational Constant

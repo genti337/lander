@@ -40,8 +40,15 @@ def set_trans_state(dyn_body, alt=0.0, long_asc=0.0, inclination=0.0, arg_peri=0
       eciPos = numpy.dot(T_perifocal2eci, perifocalPos)
       eciVel = numpy.dot(T_perifocal2eci, perifocalVel)
 
-      print(eciPos)
-      print(eciVel)
-
+      # Set the Dynamic Body Position/Velocity
       dyn_body.setECIPos(eciPos[0], eciPos[1], eciPos[2])
       dyn_body.setECIVel(eciVel[0], eciVel[1], eciVel[2])
+   elif frame == 'lvlh':
+      pass
+
+def set_rot_state(dyn_body, frame='lvlh', euler=[0.0, 0.0, 0.0]):
+
+   if frame == 'lvlh':
+      dyn_body.setLVLHAtt(euler[0], euler[1], euler[2])
+   else:
+      pass

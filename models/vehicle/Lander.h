@@ -7,7 +7,6 @@
 #include <deque>
 
 // Model Includes
-#include "../math/Vec3.h"
 #include "../dyn_body/DynBody.h"
 #include "../eom/EoM.h"
 #include "../fam/FaM.h"
