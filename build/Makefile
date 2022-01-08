@@ -11,7 +11,9 @@ SRC      :=                       \
    ../models/pybind/PyBind.cpp    \
    ../models/vehicle/Lander.cpp    \
    ../models/math/MathUtils.cpp    \
-#   $(wildcard src/module2/*.cpp) \
+   ../models/math/PIDController.cpp    \
+   ../models/gnc/control/LVLHAttCtl.cpp    \
+#   $(wildcard src/math/*.cpp) \
 #   $(wildcard src/*.cpp)         \
 
 OBJECTS  := $(SRC:%.cpp=$(OBJ_DIR)/%.o)

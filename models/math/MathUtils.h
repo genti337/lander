@@ -20,6 +20,9 @@ public:
    
    // Convert Euler Angles to Rotation Matrix (Yaw-Pitch-Roll)
    void Euler2Mat(double mat[3][3], double euler[3]);
+
+   // Matrix Inverse
+   void MatInvert(double inv[3][3], double m[3][3]);
 };
 
 #endif

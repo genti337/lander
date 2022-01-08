@@ -10,6 +10,7 @@
 #include "../dyn_body/DynBody.h"
 #include "../eom/EoM.h"
 #include "../fam/FaM.h"
+#include "../gnc/control/LVLHAttCtl.h"
 
 class Lander {
    friend class DynBody;
@@ -32,6 +33,9 @@ private:
 
    FaM fam;             // (--)     Forces and Moments
    EoM eom;             // (--)     Equations of Motion
+
+   // Guidance Control Algorithms
+   LVLHAttCtl lvlh_att_ctl;   // (--) LVLH Attitude Control Algorithm
 
 };	
 

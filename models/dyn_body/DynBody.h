@@ -13,6 +13,7 @@
 class DynBody : MathUtils {
    friend class EoM;
    friend class FaM;
+   friend class LVLHAttCtl;
 public:
    // Default Constructor
    DynBody(void);
@@ -24,7 +25,12 @@ public:
    void setMass(double mass_in);
 
    // Set the Body Center of Gravity
-   void setCG(double cg_in[3]);
+   void setCG(double cg_x, double cg_y, double cg_z);
+
+   // Set the Body Moment of Inertia
+   void setInertia(double ixx, double ixy, double ixz,
+                   double iyx, double iyy, double iyz,
+                   double izx, double izy, double izz);
 
    // Set the Inertial Position
    void setECIPos(double eciPosX, double eciPosY, double eciPosZ);
@@ -43,6 +49,9 @@ public:
 
    // Get the LVLH Velocity
    double getLVLHVel(int element);
+
+   // Get the LVLH Attitude
+   double getLVLHAtt(int element);
 
    // Get the Geocentric Altitude
    double getAlt();
@@ -63,6 +72,7 @@ protected:
    double T_lvlh2body[3][3];    // (--)    LVLH to Body Rotation
    double eul_lvlh2body[3];     // (r)     LVLH to Body Euler Angles (Yaw-Pitch-Roll)
    double geocentric_alt;       // (m)     Geocentric Altitude
+   double force_eci[3];         // (N)     Force in the Inertial Frame
    double force_body[3];        // (N)     Force in the Body Frame
    double torque_body[3];       // (N*m)   Torque in the Body Frame
    double moment_body[3];       // (N*m)   Moment in the Body Frame
@@ -77,8 +87,25 @@ inline void DynBody::setMass(double mass_in) {
 }
 
 // Set the Body Mass
-inline void DynBody::setCG(double cg_in[3]) {
-   V_COPY(cg, cg_in);
+inline void DynBody::setCG(double cg_x, double cg_y, double cg_z) {
+   cg[0] = cg_x;
+   cg[1] = cg_y;
+   cg[2] = cg_z;
+}
+
+// Set the Body Moment of Inertia
+inline void DynBody::setInertia(double ixx, double ixy, double ixz,
+                                double iyx, double iyy, double iyz,
+                                double izx, double izy, double izz) {
+   inertia[0][0] = ixx;
+   inertia[0][1] = ixy;
+   inertia[0][2] = ixz;
+   inertia[1][0] = iyx;
+   inertia[1][1] = iyy;
+   inertia[1][2] = iyz;
+   inertia[2][0] = izx;
+   inertia[2][1] = izy;
+   inertia[2][2] = izz;
 }
 
 // Set the Inertial Position
@@ -118,7 +145,7 @@ inline void DynBody::setLVLHAtt(double yaw, double pitch, double roll) {
    V_NORM(T_eci2lvlh[2], T_eci2lvlh[2]);
 
    // Inertial to Body
-   MxM(T_eci2body, T_eci2lvlh, T_lvlh2body);
+   MxM(T_eci2body, T_lvlh2body, T_eci2lvlh);
 
    M_PRINT(T_lvlh2body);
    M_PRINT(T_eci2body);
@@ -132,6 +159,11 @@ inline double DynBody::getECIVel(int element) {
 // Get the LVLH Velocity
 inline double DynBody::getLVLHVel(int element) {
    return lvlhVel[element];
+}
+
+// Get the LVLH Attitude
+inline double DynBody::getLVLHAtt(int element) {
+   return eul_lvlh2body[element];
 }
 
 // Get the Geocentric Altitude

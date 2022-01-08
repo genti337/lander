@@ -23,6 +23,9 @@ void Lander::Initialize() {
    // Default Module Update Rate
    this->dt = 0.1;
 
+   // Initialize the Control Algorithms
+   lvlh_att_ctl.Initialize();
+
    // Initialize the Forces and Moments
    fam.Initialize();
 
@@ -34,6 +37,9 @@ void Lander::Initialize() {
 
 // Update Routine
 void Lander::Update(DynBody &lander) {
+   // Update the GNC Algorithms
+   lvlh_att_ctl.Update(lander);
+
    // Update the Forces and Moments
    fam.Update(lander);
 

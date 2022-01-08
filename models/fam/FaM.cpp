@@ -46,8 +46,9 @@ void FaM::Update(DynBody &lander) {
    // Gravitational Acceleration in the Inertial Frame
    MxV(this->grav_accel_body, lander.T_eci2body, this->grav_accel_eci);
 
-   // Body Force
+   // Forces
    for (int i=0; i<3; i++) {
+      lander.force_eci[i] = lander.mass * this->grav_accel_eci[i];
       lander.force_body[i] = lander.mass * this->grav_accel_body[i];
    }
 

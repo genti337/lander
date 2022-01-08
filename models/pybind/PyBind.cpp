@@ -28,11 +28,13 @@ PYBIND11_MODULE(liblander, m) {
         .def(py::init<>())                   	// Constructor
         .def("setMass", &DynBody::setMass)   	// Expose method to set the body mass
         .def("setCG", &DynBody::setCG)          // Expose method to set the center of gravity
+        .def("setInertia", &DynBody::setInertia) // Expose method to set the moment of inertia
         .def("setECIPos", &DynBody::setECIPos)  // Expose method to set the inertial position
         .def("getECIPos", &DynBody::getECIPos)  // Expose method to get the inertial position
         .def("setECIVel", &DynBody::setECIVel)  // Expose method to set the inertial velocity
         .def("getECIVel", &DynBody::getECIVel)  // Expose method to get the inertial velocity
         .def("setLVLHAtt", &DynBody::setLVLHAtt)  // Expose method to set the LVLH Attitude
+        .def("getLVLHAtt", &DynBody::getLVLHAtt)  // Expose method to set the LVLH Attitude
         .def("getLVLHVel", &DynBody::getLVLHVel)  // Expose method to get the LVLH velocity
         .def("getAlt", &DynBody::getAlt);       // Expose method to get the geocentric altitude
 

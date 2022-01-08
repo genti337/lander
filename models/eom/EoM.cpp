@@ -75,40 +75,41 @@ void EoM::Update(DynBody &lander) {
    V_NORM(T_eci2lvlh[1], T_eci2lvlh[1]);
    V_NORM(T_eci2lvlh[2], T_eci2lvlh[2]);
 
-   // Body Frame Acceleration
+   // Inertial Frame Acceleration
    for (int i=0; i<3; i++) {
-      lander.bodyAcc[i] = lander.force_body[i] / lander.mass;
+      lander.eciAcc[i] = lander.force_eci[i] / lander.mass;
    }
-
-   // Inertial Acceleration
-   MtxV(lander.eciAcc, lander.T_eci2body, lander.bodyAcc);
-   M_TRANS(lander.T_body2eci, lander.T_eci2body);
 
    // Update the Vehicle Position and Velocity
    for (int i=0; i<3; i++) {
       Integrate(lander.eciVel[i], lander.eciVel[i], lander.eciAcc[i], eciAccPrev[i]);
       Integrate(lander.eciPos[i], lander.eciPos[i], lander.eciVel[i], eciVelPrev[i]);
+   }
+
+
+   // Integrate the Vehicle Moment
+   for (int i=0; i<3; i++) {
       Integrate(lander.moment_body[i], lander.moment_body[i], lander.torque_body[i], eciVelPrev[i]);
    }
 
-   // Body Angular Acceleration
+   // Body Angular Velocity
    double inertia_inverse[3][3];
-   M_TRANS(inertia_inverse, lander.inertia);
+   MatInvert(inertia_inverse, lander.inertia);
    MxV(lander.omega_body, inertia_inverse, lander.moment_body);
-   MxV(lander.omega_eci, lander.T_body2eci, lander.omega_body);
 
-   // 
+   // Update the Inertial to Body Rotation Matrix
    double T_eci2body_dot[3][3];
    double omega_star[3][3];
-   V_SKEW(omega_star, lander.omega_eci);
+   V_SKEW(omega_star, lander.omega_body);
    MxM(T_eci2body_dot, omega_star, lander.T_eci2body);
 
-   // Integrate
+   // Integrate the Rotation Matrix
    for (int i=0; i<3; i++) {
       for (int j=0; j<3; j++) {
          Integrate(lander.T_eci2body[i][j], lander.T_eci2body[i][j], T_eci2body_dot[i][j], eciVelPrev[i]);
       }
    }
+   M_TRANS(lander.T_body2eci, lander.T_eci2body);
 
    // Planet-Fixed State
    MxV(lander.pfixPos, T_eci2pfix, lander.eciPos);
@@ -118,10 +119,8 @@ void EoM::Update(DynBody &lander) {
 
    // LVLH State
    MxV(lander.lvlhVel, T_eci2lvlh, lander.eciVel);
-   MtxM(lander.T_lvlh2body, T_eci2lvlh, lander.T_eci2body);
+   MxMt(lander.T_lvlh2body, lander.T_eci2body, T_eci2lvlh);
    Mat2Euler(lander.T_lvlh2body, lander.eul_lvlh2body); 
-   //printf("%.2f %.2f %.2f\n", lander.eul_lvlh2body[0] * 180.0 / M_PI, lander.eul_lvlh2body[1] * 180.0 / M_PI, lander.eul_lvlh2body[2] * 180.0 / M_PI);
-   //printf("%.2f %.2f %.2f\n", lander.lvlhVel[0], lander.lvlhVel[1], lander.lvlhVel[2]);
 
    // Geocentric Altitude
    lander.geocentric_alt = V_MAG(lander.eciPos) - planet_radius;
