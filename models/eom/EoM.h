@@ -43,12 +43,19 @@ private:
    double planet_rot;	// (r)      Planet Rotation Angle
    double dt;           // (s)      Module Update Rate
 
-   double T_eci2pfix[3][3];  // (--) Inertial to Planet-Fixed Rotation Matrix
-   double T_pfix2eci[3][3];  // (--) Planet-Fixed to Inertial Rotation Matrix
-   double T_eci2lvlh[3][3];  // (--) Inertial to Planet-Fixed Rotation Matrix
+   double T_eci2pfix[3][3];    // (--) Inertial to Planet-Fixed Rotation Matrix
+   double T_pfix2eci[3][3];    // (--) Planet-Fixed to Inertial Rotation Matrix
+   double T_eci2lvlh[3][3];    // (--) Inertial to Planet-Fixed Rotation Matrix
+   double T_pfix2lframe[3][3]; // (--) Planet-Fixed to Landing Frame
 
    double accel_body[3];     // (m/s^2)  Acceleration in the Body Frame
    double accel_eci[3];      // (m/s^2)  Acceleration in the Inertial Frame
+
+   double pfix_lsite[3];     // (m)      Planet-Fixed Landing Site
+   double down_range;        // (m)      Down Range from Landing Site
+   double down_range_theta;  // (r)      Down Range Angle from Landing Site
+   double cross_range;       // (m)      Cross Range from Landing Site
+   double cross_range_theta; // (r)      Cross Range Angle from Landing Site
 
    std::deque<double> eciVelPrev[3];
    std::deque<double> eciAccPrev[3];

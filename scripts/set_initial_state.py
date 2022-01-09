@@ -34,7 +34,7 @@ def set_trans_state(dyn_body, alt=0.0, long_asc=0.0, inclination=0.0, arg_peri=0
 
       # Position/Velocity of the Vehicle wrt Perifocal Frame
       perifocalPos = [(moon_radius + alt) * math.cos(true_anom), (moon_radius + alt) * math.sin(true_anom), 0.0]
-      perifocalVel = [vel_mag * math.sin(true_anom), vel_mag * math.cos(true_anom), 0.0]
+      perifocalVel = [-vel_mag * math.sin(true_anom), vel_mag * math.cos(true_anom), 0.0]
 
       # Inertial Position/Velocity
       eciPos = numpy.dot(T_perifocal2eci, perifocalPos)

@@ -79,6 +79,8 @@ protected:
    double alpha[3];             // (r/s^2) Body Angular Acceleration
    double omega_body[3];        // (r/s^2) Body Angular Velocity
    double omega_eci[3];         // (r/s^2) Body Angular Velocity
+   double lframe_pos[3];        // (m)     Landing Frame Position
+   double lframe_vel[3];        // (m/s)   Landing Frame Velocity
 };	
 
 // Set the Body Mass

@@ -8,7 +8,7 @@ body = DynBody()
 lander = Lander()
 
 # Set the Initial Orbital State
-set_trans_state(body, frame='orbital', alt=15000.0, long_asc=0.0, inclination=math.radians(90.0), true_anom=math.radians(0.0))
+set_trans_state(body, frame='orbital', alt=15000.0, long_asc=0.0, inclination=math.radians(90.0), true_anom=math.radians(75.0))
 
 # Set teh Intial Attitude
 set_rot_state(body, frame='lvlh', euler=[math.radians(0.0), math.radians(0.0), math.radians(0.0)])
@@ -34,7 +34,7 @@ lvlhPitch = []
 alt = []
 time = 0.0
 times = []
-iter = 100000
+iter = 100 # 20000 #100000
 while i < iter:
 	lander.Update(body)
 	times.append(time)
@@ -53,13 +53,14 @@ while i < iter:
 #plt.plot(alt)
 #plt.show()
 
-#fig = plt.figure()
+fig = plt.figure()
 
 # syntax for 3-D projection
-ax = plt.axes(projection ='3d')
-
-ax.plot3D(pos_x, pos_y, pos_z, 'green')
-ax.set_title('3D line plot geeks for geeks')
+#ax = plt.axes(projection ='3d')
+#
+plt.plot(pos_x, pos_z)
+#ax.plot3D(pos_x, pos_y, pos_z, 'green')
+#ax.set_title('3D line plot geeks for geeks')
 #plt.plot(times, velLVLH_x)
 #plt.show()
 #plt.plot(times, velLVLH_y)

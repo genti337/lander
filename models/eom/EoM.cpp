@@ -38,6 +38,11 @@ void EoM::Initialize() {
    // Initialize the Planet-Fixed to Inertial to be Co-aligned
    M_IDENT(T_eci2pfix);
 
+   // Defautl Landing Site
+   this->pfix_lsite[0] = 0.0;
+   this->pfix_lsite[1] = 0.0;
+   this->pfix_lsite[2] = this->planet_radius;
+
    return;
 }
 
@@ -86,6 +91,8 @@ void EoM::Update(DynBody &lander) {
       Integrate(lander.eciPos[i], lander.eciPos[i], lander.eciVel[i], eciVelPrev[i]);
    }
 
+//   V_PRINT(lander.eciAcc);
+//   printf("\n");
 
    // Integrate the Vehicle Moment
    for (int i=0; i<3; i++) {
@@ -123,7 +130,28 @@ void EoM::Update(DynBody &lander) {
    Mat2Euler(lander.T_lvlh2body, lander.eul_lvlh2body); 
 
    // Geocentric Altitude
-   lander.geocentric_alt = V_MAG(lander.eciPos) - planet_radius;
+   lander.geocentric_alt = V_MAG(lander.eciPos) - this->planet_radius;
+
+   // Calculate the Down Range and Cross Range
+   if (first_pass) {
+      V_SUB(T_pfix2lframe[0], lander.pfixPos, this->pfix_lsite); 
+      V_NORM(T_pfix2lframe[0], T_pfix2lframe[0]);
+      V_NORM(T_pfix2lframe[2], this->pfix_lsite);
+      V_CROSS(T_pfix2lframe[1], T_pfix2lframe[2], T_pfix2lframe[0]);
+      V_CROSS(T_pfix2lframe[0], T_pfix2lframe[1], T_pfix2lframe[2]);
+   }
+
+   // Calculate the Position and Velocity in the Landing Frame
+   MxV(lander.lframe_pos, T_pfix2lframe, lander.pfixPos);
+   MxV(lander.lframe_vel, T_pfix2lframe, lander.pfixVel);
+
+   // Down Range
+   this->down_range_theta = atan(lander.lframe_pos[0] / lander.lframe_pos[2]);
+   this->down_range = V_MAG(lander.eciPos) * this->down_range_theta;
+
+   // Cross Range
+   this->cross_range_theta = atan2(lander.lframe_pos[1], lander.lframe_pos[0]);
+   this->cross_range = V_MAG(lander.eciPos) * this->cross_range_theta;
 
    // Reset the First Pass Flag
    first_pass = false;
